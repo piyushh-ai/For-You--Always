@@ -1,47 +1,78 @@
 import { useMemories } from "@/hooks/use-memories";
 import { PolaroidCard } from "@/components/PolaroidCard";
-import { Loader2, Heart, Sparkles, Camera, ArrowRight } from "lucide-react";
+import { Loader2, Heart, Sparkles, ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
 import { Link } from "wouter";
-import { useEffect, useState } from "react";
+import { useEffect, memo } from "react";
+
+// Memoized loading spinner
+const LoadingSpinner = memo(() => (
+  <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-rose-50 via-pink-50 to-purple-50">
+    <motion.div
+      animate={{
+        scale: [1, 1.15, 1],
+        rotate: [0, 360],
+      }}
+      transition={{
+        duration: 2,
+        repeat: Infinity,
+        ease: "easeInOut",
+      }}
+      className="will-change-transform"
+    >
+      <Loader2 className="w-10 h-10 sm:w-12 sm:h-12 text-pink-400" />
+    </motion.div>
+    <motion.p
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ delay: 0.4 }}
+      className="mt-4 sm:mt-6 font-handwriting text-lg sm:text-xl text-pink-600"
+    >
+      Loading our precious moments...
+    </motion.p>
+  </div>
+));
+
+LoadingSpinner.displayName = "LoadingSpinner";
+
+// Memoized decorative sparkle
+const DecorativeSparkle = memo(({ delay, index }: { delay: number; index: number }) => (
+  <motion.div
+    className="absolute will-change-transform pointer-events-none"
+    style={{
+      left: `${15 + index * 20}%`,
+      top: `${10 + (index % 3) * 25}%`,
+    }}
+    animate={{
+      y: [0, -15, 0],
+      opacity: [0.15, 0.3, 0.15],
+      scale: [0.9, 1, 0.9],
+    }}
+    transition={{
+      duration: 3 + delay,
+      repeat: Infinity,
+      ease: "easeInOut",
+    }}
+  >
+    <Sparkles className="w-3 h-3 sm:w-4 sm:h-4 text-pink-400/40" />
+  </motion.div>
+));
+
+DecorativeSparkle.displayName = "DecorativeSparkle";
 
 export default function Memories() {
   const { data: memories, isLoading } = useMemories();
-  const [hoveredButton, setHoveredButton] = useState(false);
 
+  // Instant scroll reset
   useEffect(() => {
-  window.scrollTo({ top: 0, behavior: "instant" });
-}, []);
+    window.scrollTo({ top: 0, behavior: "instant" });
+  }, []);
 
   if (isLoading) {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-rose-50 via-pink-50 to-purple-50">
-        <motion.div
-          animate={{
-            scale: [1, 1.2, 1],
-            rotate: [0, 360],
-          }}
-          transition={{
-            duration: 2,
-            repeat: Infinity,
-            ease: "easeInOut",
-          }}
-        >
-          <Loader2 className="w-12 h-12 text-pink-400" />
-        </motion.div>
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.5 }}
-          className="mt-6 font-handwriting text-xl text-pink-600"
-        >
-          Loading our precious moments...
-        </motion.p>
-      </div>
-    );
+    return <LoadingSpinner />;
   }
 
-  // Placeholder data if empty, just for demo visuals
+  // Placeholder data if empty
   const displayMemories = (memories && memories.length > 0) ? memories : [
     {
       id: 1,
@@ -93,387 +124,216 @@ export default function Memories() {
     }
   ];
 
-  // Animation variants
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.15,
-        delayChildren: 0.3,
-      },
-    },
-  };
-
-  const headerVariants = {
-    hidden: { opacity: 0, y: -30 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: {
-        duration: 0.8,
-        ease: "easeOut",
-      },
-    },
-  };
-
   return (
-    <div className="min-h-screen relative overflow-hidden bg-gradient-to-b from-rose-50/50 via-pink-50/30 to-purple-50/50">
-      {/* Background decorative elements */}
-      <div className="fixed inset-0 pointer-events-none overflow-hidden">
-        {/* Soft gradient orbs */}
-        <motion.div
-          animate={{
-            scale: [1, 1.3, 1],
-            opacity: [0.03, 0.08, 0.03],
-            rotate: [0, 90, 0],
-          }}
-          transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute top-1/4 left-1/4 w-96 h-96 bg-pink-400 rounded-full blur-[150px]"
-        />
-        <motion.div
-          animate={{
-            scale: [1.3, 1, 1.3],
-            opacity: [0.03, 0.08, 0.03],
-            rotate: [90, 0, 90],
-          }}
-          transition={{ duration: 18, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-400 rounded-full blur-[150px]"
-        />
+    <div className="min-h-screen bg-gradient-to-br from-rose-50 via-pink-50 to-purple-50 relative overflow-hidden">
+      {/* Simplified background effects */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-pink-200/20 via-transparent to-transparent pointer-events-none" />
+      
+      {/* Single optimized glow */}
+      <motion.div
+        animate={{ 
+          scale: [1, 1.1, 1],
+          opacity: [0.1, 0.18, 0.1],
+        }}
+        transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+        className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[500px] h-[500px] sm:w-[700px] sm:h-[700px] bg-gradient-to-r from-pink-300/25 to-purple-300/25 rounded-full blur-[100px] will-change-transform"
+      />
 
-        {/* Floating hearts */}
-        {[...Array(12)].map((_, i) => (
-          <motion.div
-            key={i}
-            className="absolute"
-            initial={{
-              x: Math.random() * window.innerWidth,
-              y: window.innerHeight + 100,
-              opacity: 0,
-            }}
-            animate={{
-              y: -200,
-              opacity: [0, 0.3, 0.3, 0],
-              rotate: [0, 360],
-            }}
-            transition={{
-              duration: 15 + Math.random() * 10,
-              repeat: Infinity,
-              delay: i * 2,
-              ease: "linear",
-            }}
-          >
-            <Heart className="w-4 h-4 text-pink-300/40 fill-pink-200/40" />
-          </motion.div>
-        ))}
-
-        {/* Sparkles */}
-        {[...Array(15)].map((_, i) => (
-          <motion.div
-            key={`sparkle-${i}`}
-            className="absolute"
-            style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-            }}
-            animate={{
-              opacity: [0, 0.6, 0],
-              scale: [0, 1, 0],
-              rotate: [0, 180, 360],
-            }}
-            transition={{
-              duration: 4 + Math.random() * 3,
-              repeat: Infinity,
-              delay: i * 0.5,
-              ease: "easeInOut",
-            }}
-          >
-            <Sparkles className="w-3 h-3 text-pink-400/40" />
-          </motion.div>
+      {/* Reduced floating sparkles - only 4 */}
+      <div className="absolute inset-0 pointer-events-none">
+        {[...Array(4)].map((_, i) => (
+          <DecorativeSparkle key={i} delay={i * 0.5} index={i} />
         ))}
       </div>
 
-      <div className="relative z-10 pt-24 md:pt-32 pb-24 md:pb-32 px-4">
-        <div className="max-w-7xl mx-auto">
-          {/* Header Section */}
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-20">
+        {/* Header */}
+        <motion.header
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7 }}
+          className="text-center mb-12 sm:mb-16 lg:mb-20"
+        >
+          {/* Top decorative element - simplified */}
           <motion.div
-            variants={headerVariants}
-            initial="hidden"
-            animate="visible"
-            className="text-center mb-16 md:mb-24"
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.7, delay: 0.2 }}
+            className="flex items-center justify-center gap-2 sm:gap-3 mb-6 sm:mb-8"
           >
-            {/* Top decorative element */}
             <motion.div
-              initial={{ opacity: 0, scale: 0 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.8, delay: 0.2 }}
-              className="flex items-center justify-center gap-3 mb-8"
+              animate={{ rotate: 360 }}
+              transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+              className="will-change-transform"
             >
-              <motion.div
-                animate={{ rotate: 360 }}
-                transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-              >
-                <Sparkles className="w-5 h-5 text-pink-400" />
-              </motion.div>
-              <div className="h-px w-12 md:w-16 bg-gradient-to-r from-transparent via-pink-400/50 to-transparent" />
-              <motion.div
-                animate={{ scale: [1, 1.2, 1] }}
-                transition={{ duration: 2, repeat: Infinity }}
-              >
-                <Camera className="w-6 h-6 text-rose-500" />
-              </motion.div>
-              <div className="h-px w-12 md:w-16 bg-gradient-to-r from-transparent via-pink-400/50 to-transparent" />
-              <motion.div
-                animate={{ rotate: -360 }}
-                transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-              >
-                <Sparkles className="w-5 h-5 text-pink-400" />
-              </motion.div>
+              <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-pink-400/70" />
             </motion.div>
-
-            {/* Main title */}
+            <div className="h-px w-12 sm:w-16 bg-gradient-to-r from-transparent via-pink-400/60 to-transparent" />
+            <Heart className="w-4 h-4 sm:w-5 sm:h-5 text-rose-500 fill-rose-400" />
+            <div className="h-px w-12 sm:w-16 bg-gradient-to-r from-transparent via-pink-400/60 to-transparent" />
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.3 }}
-              className="space-y-4 md:space-y-6"
+              animate={{ rotate: -360 }}
+              transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+              className="will-change-transform"
             >
-              <motion.h1
-                animate={{
-                  textShadow: [
-                    "0 0 20px rgba(244, 114, 182, 0.1)",
-                    "0 0 30px rgba(244, 114, 182, 0.2)",
-                    "0 0 20px rgba(244, 114, 182, 0.1)",
-                  ],
-                }}
-                transition={{ duration: 3, repeat: Infinity }}
-                className="font-serif text-4xl sm:text-5xl md:text-6xl lg:text-7xl text-transparent bg-clip-text bg-gradient-to-r from-rose-600 via-pink-600 to-purple-600 leading-tight px-4"
-              >
-                Captured Moments
-              </motion.h1>
-
-              <motion.p
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.8, delay: 0.5 }}
-                className="font-handwriting text-xl sm:text-2xl md:text-3xl text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-rose-500 px-4"
-              >
-                Snapshots of our love story
-              </motion.p>
-
-              {/* Subtitle */}
-              <motion.p
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.8, delay: 0.7 }}
-                className="text-sm md:text-base text-gray-600 italic max-w-2xl mx-auto px-4"
-              >
-                Each photo holds a thousand emotions, each moment a lifetime of memories
-              </motion.p>
-            </motion.div>
-
-            {/* Floating hearts decoration */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 1, delay: 0.9 }}
-              className="flex items-center justify-center gap-2 mt-6"
-            >
-              {[...Array(5)].map((_, i) => (
-                <motion.div
-                  key={i}
-                  animate={{
-                    y: [0, -8, 0],
-                    opacity: [0.3, 0.6, 0.3],
-                  }}
-                  transition={{
-                    duration: 2,
-                    repeat: Infinity,
-                    delay: i * 0.2,
-                  }}
-                >
-                  <Heart className="w-2 h-2 md:w-3 md:h-3 text-pink-400/50 fill-pink-300/50" />
-                </motion.div>
-              ))}
+              <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-pink-400/70" />
             </motion.div>
           </motion.div>
 
-          {/* Memories Grid */}
-          <motion.div
-            variants={containerVariants}
-            initial="hidden"
-            animate="visible"
-            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-12 lg:gap-16 px-4 md:px-8"
-          >
-            {displayMemories.map((memory, idx) => (
-              <PolaroidCard key={memory.id} memory={memory} index={idx} />
-            ))}
-          </motion.div>
-
-          {/* CTA Section */}
-          <motion.div
-            initial={{ opacity: 0, y: 40 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.3 }}
-            transition={{ duration: 0.8, delay: 0.3 }}
-            className="flex flex-col items-center justify-center mt-20 md:mt-32 px-4 relative"
-          >
-            {/* Decorative background for CTA */}
-            <motion.div
-              animate={{
-                scale: [1, 1.2, 1],
-                opacity: [0.1, 0.2, 0.1],
-              }}
-              transition={{ duration: 5, repeat: Infinity }}
-              className="absolute inset-0 flex items-center justify-center"
-            >
-              <div className="w-72 h-72 md:w-96 md:h-96 bg-gradient-to-br from-pink-300/20 to-purple-300/20 rounded-full blur-[100px]" />
-            </motion.div>
-
-            {/* Divider */}
-            <motion.div
-              initial={{ width: 0 }}
-              whileInView={{ width: "100%" }}
-              viewport={{ once: true }}
-              transition={{ duration: 1 }}
-              className="max-w-xs mb-12 relative"
-            >
-              <div className="h-px bg-gradient-to-r from-transparent via-pink-400/50 to-transparent" />
-              <motion.div
-                animate={{ scale: [1, 1.3, 1] }}
-                transition={{ duration: 2, repeat: Infinity }}
-                className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white p-2 rounded-full"
-              >
-                <Heart className="w-4 h-4 text-rose-500 fill-rose-400" />
-              </motion.div>
-            </motion.div>
-
-            {/* Content */}
-            <div className="relative z-10 space-y-8 text-center">
-              <motion.p
-                initial={{ opacity: 0 }}
-                whileInView={{ opacity: 1 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.8, delay: 0.4 }}
-                className="font-handwriting text-2xl md:text-3xl text-transparent mb-5 bg-clip-text bg-gradient-to-r from-pink-600 to-rose-600"
-              >
-                But the best part is yet to come...
-              </motion.p>
-
-              <Link href="/surprise">
-                <motion.button
-                  onHoverStart={() => setHoveredButton(true)}
-                  onHoverEnd={() => setHoveredButton(false)}
-                  whileHover={{ scale: 1.05, y: -5 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="group relative px-8 md:px-12 py-4 md:py-5 bg-gradient-to-r from-rose-500 via-pink-500 to-purple-500 text-white rounded-full font-serif text-base md:text-lg lg:text-xl shadow-2xl shadow-pink-400/50 overflow-hidden transition-all duration-500"
-                >
-                  {/* Animated gradient overlay */}
-                  <motion.div
-                    animate={{
-                      x: ["-100%", "100%"],
-                    }}
-                    transition={{
-                      duration: 3,
-                      repeat: Infinity,
-                      ease: "linear",
-                    }}
-                    className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"
-                  />
-
-                  {/* Button glow effect */}
-                  <motion.div
-                    animate={{
-                      scale: [1, 1.5, 1],
-                      opacity: [0.5, 0, 0.5],
-                    }}
-                    transition={{ duration: 2, repeat: Infinity }}
-                    className="absolute inset-0 bg-white/10 rounded-full blur-lg"
-                  />
-
-                  <span className="relative flex items-center gap-3 whitespace-nowrap">
-                    <Heart className="w-5 h-5 fill-white" />
-                    I have a surprise for you
-                    <motion.div
-                      animate={{ x: hoveredButton ? [0, 5, 0] : 0 }}
-                      transition={{ duration: 1, repeat: hoveredButton ? Infinity : 0 }}
-                    >
-                      <ArrowRight className="w-5 h-5" />
-                    </motion.div>
-                  </span>
-
-                  {/* Sparkles on hover */}
-                  {hoveredButton && (
-                    <motion.div className="absolute inset-0 pointer-events-none">
-                      {[...Array(8)].map((_, i) => (
-                        <motion.div
-                          key={i}
-                          className="absolute"
-                          initial={{ opacity: 0, scale: 0 }}
-                          animate={{
-                            opacity: [0, 1, 0],
-                            scale: [0, 1.5, 0],
-                            x: Math.cos((i * Math.PI) / 4) * 40,
-                            y: Math.sin((i * Math.PI) / 4) * 40,
-                          }}
-                          transition={{
-                            duration: 1.5,
-                            repeat: Infinity,
-                            delay: i * 0.1,
-                          }}
-                          style={{
-                            left: "50%",
-                            top: "50%",
-                          }}
-                        >
-                          <Sparkles className="w-4 h-4 text-white" />
-                        </motion.div>
-                      ))}
-                    </motion.div>
-                  )}
-                </motion.button>
-              </Link>
-
-              <motion.p
-                initial={{ opacity: 0 }}
-                whileInView={{ opacity: 1 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.8, delay: 0.6 }}
-                className="text-xs md:text-sm text-gray-500 italic"
-              >
-                Click when your heart is ready to feel even more special
-              </motion.p>
-            </div>
-          </motion.div>
-
-          {/* Bottom decorative element */}
+          {/* Title */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 0.5, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 1, delay: 0.8 }}
-            className="flex items-center justify-center gap-2 mt-16"
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.3 }}
+            className="space-y-3 sm:space-y-4"
           >
-            <div className="h-px w-8 md:w-12 bg-gradient-to-r from-transparent to-pink-300/50" />
+            <motion.h1
+              animate={{
+                textShadow: [
+                  "0 0 15px rgba(244, 114, 182, 0.1)",
+                  "0 0 22px rgba(244, 114, 182, 0.15)",
+                  "0 0 15px rgba(244, 114, 182, 0.1)",
+                ],
+              }}
+              transition={{ duration: 3, repeat: Infinity }}
+              className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-handwriting text-transparent bg-clip-text bg-gradient-to-r from-rose-600 via-pink-600 to-purple-600 leading-tight px-4"
+            >
+              Our Memory Lane
+            </motion.h1>
+
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.7, delay: 0.5 }}
+              className="text-sm sm:text-base md:text-lg lg:text-xl text-gray-600 font-serif italic max-w-2xl mx-auto px-4"
+            >
+              Captured moments that tell our beautiful story
+            </motion.p>
+          </motion.div>
+
+          {/* Simplified heart decoration - only 3 hearts */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.8, delay: 0.6 }}
+            className="flex items-center justify-center gap-2 mt-6 sm:mt-8"
+          >
             {[...Array(3)].map((_, i) => (
               <motion.div
                 key={i}
                 animate={{
-                  scale: [1, 1.3, 1],
-                  opacity: [0.3, 0.6, 0.3],
+                  y: [0, -8, 0],
+                  opacity: [0.3, 0.55, 0.3],
                 }}
                 transition={{
                   duration: 2,
                   repeat: Infinity,
                   delay: i * 0.3,
                 }}
+                className="will-change-transform"
               >
-                <Heart className="w-2 h-2 md:w-3 md:h-3 text-pink-400/60 fill-pink-300/40" />
+                <Heart className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-pink-400/50 fill-pink-300/50" />
               </motion.div>
             ))}
-            <div className="h-px w-8 md:w-12 bg-gradient-to-l from-transparent to-pink-300/50" />
           </motion.div>
-        </div>
+        </motion.header>
+
+        {/* Optimized Memory Grid - mobile-first responsive */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.7, delay: 0.4 }}
+          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 lg:gap-10 mb-16 sm:mb-20 lg:mb-24"
+        >
+          {displayMemories.map((memory, index) => (
+            <motion.div
+              key={memory.id}
+              initial={{ opacity: 0, y: 40 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "100px", amount: 0.1 }}
+              transition={{ 
+                duration: 0.6, 
+                delay: index * 0.1,
+                ease: "easeOut"
+              }}
+            >
+              <PolaroidCard memory={memory} index={index} />
+            </motion.div>
+          ))}
+        </motion.div>
+
+        {/* Call to Action */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "100px" }}
+          transition={{ duration: 0.7 }}
+          className="flex flex-col items-center justify-center py-12 sm:py-16 relative"
+        >
+          {/* Simplified background glow */}
+          <motion.div
+            animate={{
+              scale: [1, 1.08, 1],
+              opacity: [0.1, 0.18, 0.1],
+            }}
+            transition={{ duration: 4, repeat: Infinity }}
+            className="absolute inset-0 flex items-center justify-center"
+          >
+            <div className="w-48 h-48 sm:w-64 sm:h-64 md:w-80 md:h-80 bg-gradient-to-br from-pink-300/20 to-purple-300/20 rounded-full blur-[60px]" />
+          </motion.div>
+
+          {/* Content */}
+          <div className="relative z-10 space-y-6 sm:space-y-8 text-center">
+            <motion.p
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.7, delay: 0.15 }}
+              className="font-handwriting text-lg sm:text-xl md:text-2xl text-pink-600 px-4"
+            >
+              Ready for the grand finale?
+            </motion.p>
+
+            <Link href="/surprise">
+              <motion.button
+                whileHover={{ scale: 1.03, y: -3 }}
+                whileTap={{ scale: 0.97 }}
+                className="group relative px-6 sm:px-8 md:px-12 py-3 sm:py-4 md:py-5 bg-gradient-to-r from-rose-500 via-pink-500 to-purple-500 text-white rounded-full font-serif text-sm sm:text-base md:text-lg shadow-xl shadow-pink-300/40 overflow-hidden will-change-transform touch-manipulation"
+              >
+                {/* Simplified glow */}
+                <motion.div
+                  animate={{
+                    scale: [1, 1.3, 1],
+                    opacity: [0.4, 0, 0.4],
+                  }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                  className="absolute inset-0 bg-white/20 rounded-full"
+                />
+
+                <span className="relative flex items-center gap-2 sm:gap-3">
+                  Continue the Journey
+                  <motion.div
+                    animate={{ x: [0, 4, 0] }}
+                    transition={{ duration: 1.5, repeat: Infinity }}
+                    className="will-change-transform"
+                  >
+                    <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />
+                  </motion.div>
+                </span>
+              </motion.button>
+            </Link>
+
+            <motion.p
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.7, delay: 0.3 }}
+              className="text-xs sm:text-sm md:text-base text-gray-500 italic px-4"
+            >
+              The best is yet to come ♡
+            </motion.p>
+          </div>
+        </motion.div>
       </div>
     </div>
   );
